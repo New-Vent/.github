@@ -10,11 +10,14 @@
 ### 멘토링 질문 리스트
 
 <details>
-<summary><strong>09.10 수요일 (예정)</strong></summary>
+<summary><strong>09.15 수요일 (예정)</strong></summary>
 
 <br>
 
-### 프론트
+<details>
+<summary><strong>프론트</strong></summary>
+
+<br>
 
 #### 1. LLM 결과가 담긴 동일 페이지에서 iframe preview만 포커싱하여 해당 HTML만 보여줄 수 있는지
 
@@ -53,9 +56,14 @@
 
 </details>
 
+</details>
+
 ---
 
-### 백엔드
+<details>
+<summary><strong>백엔드</strong></summary>
+
+<br>
 
 #### 1. LLM 생성 실패·시간 초과 시 정책(재시도, 폴백 템플릿)을 자체 정의해도 되는지
 
@@ -120,9 +128,14 @@ LLM 호출 시 프롬프트, 응답, 토큰 수 등을 로그로 남겨야 하�
 
 </details>
 
+</details>
+
 ---
 
-### LLM / 아키텍처
+<details>
+<summary><strong>LLM / 아키텍처</strong></summary>
+
+<br>
 
 #### 1. 생성 결과를 어떤 지표로 평가하면 좋을지 — 자체 지표(스키마 준수율, 업무 규칙 통과율 등)를 정의해도 되는지
 
@@ -161,6 +174,6 @@ Jsoup 등으로 HTML 형식이 올바른지는 검증할 수 있지만, LLM이 �
 
 </details>
 
----
+</details>
 
 </details>
