@@ -5,12 +5,26 @@
 ---
 
 ### 목차
-1. [멘토링 질문 리스트](#멘토링-질문-리스트)
+1. [서비스 소개](#서비스-소개)
+2. [디렉토리 구조](#디렉토리-구조)
+3. [서버 실행 방법](#서버-실행-방법)
+4. [각 기능 소개](#각-기능-소개)
+5. [멘토링 질문 리스트](#멘토링-질문-리스트)
+
+### 서비스 소개
+
+### 디렉토리 구조
+```
+```
+
+### 서버 실행 방법
+
+### 각 기능 소개
 
 ### 멘토링 질문 리스트
 
 <details>
-<summary><strong>09.15 수요일 (예정)</strong></summary>
+<summary><strong>[LG U+ 현직자] 09.18 금요일 (예정)</strong></summary>
 
 <br>
 
@@ -175,5 +189,15 @@ Jsoup 등으로 HTML 형식이 올바른지는 검증할 수 있지만, LLM이 �
 </details>
 
 </details>
+
+</details>
+
+<details>
+<summary><strong>[외부 현직자] 10.02 금요일 (예정)</strong></summary>
+
+</details>
+
+<details>
+<summary><strong>[외부 현직자] 10.17 토요일 (예정)</strong></summary>
 
 </details>
