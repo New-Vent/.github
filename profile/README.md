@@ -13,6 +13,8 @@ NewVent는 그 과정을 **"어떤 이벤트를 하고 싶은지 말하면 페�
 ```
 
 ---
+#### [**10월 2일 금요일 멘토링 질문**](https://github.com/New-Vent/.github/blob/main/metoring.md)
+---
 
 ## 저장소
 
