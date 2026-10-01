@@ -2,7 +2,7 @@
 ### 멘토링 질문 리스트
 
 <details>
-<summary><strong>[LG U+ 현직자] 09.18 금요일 (예정)</strong></summary>
+<summary><strong>[LG U+ 현직자] 09.18 금요일</strong></summary>
 
 <br>
 
@@ -207,7 +207,6 @@ generation → event   11개 파일   (GenerateCommand가 Event, 컨트롤러들
 
 </details>
 
----
 
 ## 🤖 LLM 설계
 
@@ -276,8 +275,6 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 
 </details>
 
----
-
 ## 🔍 RAG / 검색
 
 <details>
@@ -315,8 +312,6 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 **RAG 관측은 실무에서 어디까지 하나요?**
 
 </details>
-
----
 
 ## 🔐 보안 / 인증
 
@@ -372,8 +367,6 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 - **localStorage 를 안 쓴 건 맞는 선택이었나요?**
 
 </details>
-
----
 
 ## ⚙️ 비동기 / 작업 처리
 
