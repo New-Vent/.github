@@ -187,7 +187,225 @@ HTML을 배포하는 형식이 아닌, 수정해서 저장하면 보여주는 �
 </details>
 
 <details>
-<summary><strong>[외부 현직자] 10.02 금요일 (예정)</strong></summary>
+<summary><strong>[외부 현직자] 10.02 금요일 </strong></summary>
+
+## 🧩 도메인 분리 / 패키지 구조
+
+<details>
+<summary><b>① <code>event</code> 와 <code>generation</code> 이 양방향으로 의존합니다</b></summary>
+
+<br/>
+
+```
+event → generation    6개 파일   (EventService가 GenerationJobStore, DirectEditService가 VersionStore)
+generation → event   11개 파일   (GenerateCommand가 Event, 컨트롤러들이 EventRepository)
+```
+
+이벤트의 생명주기와 페이지 생성이 서로를 필요로 해서 이렇게 됐습니다.
+
+**실무에서는 이 순환을 어떻게 끊나요?** 인터페이스를 중간에 두는 방식, 도메인 이벤트로 느슨하게 하는 방식, 아니면 애초에 한 모듈로 합치는 방식 중 어느 쪽을 보시나요?
+
+</details>
+
+---
+
+## 🤖 LLM 설계
+
+<details>
+<summary><b>② 모델에게 디자인 권한을 얼마나 열어줄지</b></summary>
+
+<br/>
+
+CSS를 쓰게 하면 디자인이 깨지고 검증도 할 수 없어서, **사람이 만들어 둔 목록에서 class 이름만 고르게** 했습니다.
+
+- **실무에서 이 선을 어디에 긋나요?**
+- **목록에 없는 요청이 왔을 때** 가장 가까운 것으로 보정 / 못 한다고 말하기 / 모델에게 다시 시키기 — 셋 중 어느 쪽이 맞나요?
+
+</details>
+
+<details>
+<summary><b>③ 모델 출력을 전혀 신뢰하지 않고 서버가 세 단계로 거릅니다</b></summary>
+
+<br/>
+
+```
+정화(sanitizeGenerated)  →  검증(BlockValidator)  →  병합(BlockMerge)
+script·onclick 제거          구조·값 보존            위치 기반 치환
+```
+
+실패하면 최대 4회 재시도합니다. **"값 변조"** 까지 잡는 검사를 직접 넣었습니다.
+
+> 예: `구매 금액 10% 페이백` → `최대 3만원 페이백` 으로 바뀌는 것
+
+- **실무의 LLM 출력 검증은 어느 수준까지 하나요?**
+- 이런 검사를 **직접 만드시나요, 라이브러리·가드레일 제품을 쓰시나요?**
+
+</details>
+
+<details>
+<summary><b>④ <code>data-behavior</code> 로 동작을 선언하는 구조</b></summary>
+
+<br/>
+
+HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주입한 뒤, `runtime.js` 가 이벤트 위임과 API 요청을 담당합니다.
+
+**이 구조가 적절한지 궁금합니다.** 모델이 만든 마크업에 동작을 붙이는 다른 방법이 있을까요?
+
+</details>
+
+<details>
+<summary><b>⑤ "되묻기"를 작업 상태로 모델링했습니다</b></summary>
+
+<br/>
+
+모델이 요청을 이해하지 못하면 `ASK_BACK` 상태로 끝냅니다. `done()` 에 포함되지만 **실패는 아니고**, 관리자의 답이 새 요청이 됩니다.
+
+- **상태 머신에 "사용자 입력 대기" 를 넣는 게 맞나요?**
+- 프론트가 `done` 만 보고 성공/실패를 가르면 **되묻기가 빨간 실패로 보이는 함정**이 있었습니다. 이런 상태를 API 계약에 어떻게 드러내는 게 좋을까요?
+
+</details>
+
+<details>
+<summary><b>⑥ 문서·페이지 버전을 어디까지 남기나요</b></summary>
+
+<br/>
+
+생성·수정할 때마다 버전을 쌓고 있습니다.
+
+**실무에서는** 개수·기간 상한을 두는지, 저장 지점만 남기고 나머지를 정리하는지, 아니면 전부 보관하는지 궁금합니다.
+
+</details>
+
+---
+
+## 🔍 RAG / 검색
+
+<details>
+<summary><b>⑦ 임베딩 모델 5종을 비교해 1종으로 고정했습니다</b></summary>
+
+<br/>
+
+한국어 기준 **cohere multilingual 이 9/10 으로 1등**이었고, **질문 10개를 손수 작성한 평가셋**으로 판단했습니다.
+
+- **이 정도 평가로 모델을 고정해도 되나요?**
+- 실무에서 **RAG 평가셋을 어떻게 만드나요?**
+- 운영 중에 **품질 저하를 어떻게 감지하나요?**
+
+</details>
+
+<details>
+<summary><b>⑧ 유사도 하한 0.5, topK 3 으로 고정했습니다</b></summary>
+
+<br/>
+
+테스트를 몇 번 돌려보고 정한 값입니다.
+
+- 실무에서는 **컷오프 기준을 어떻게 정하나요?**
+- **쿼리마다 점수 분포가 다른데 고정 임계값이 의미가 있나요?** 아니면 topK만 보고 자르나요?
+
+</details>
+
+<details>
+<summary><b>⑨ LLM 호출 로그에 <code>rag_used</code> · <code>chunk_ids</code> 를 남깁니다</b></summary>
+
+<br/>
+
+예시를 사용했는지, 어떤 청크를 사용했는지 추적하려고 남깁니다.
+
+**RAG 관측은 실무에서 어디까지 하나요?**
+
+</details>
+
+---
+
+## 🔐 보안 / 인증
+
+<details>
+<summary><b>⑩ Refresh 토큰 재사용 탐지 — 계정 전체 폐기 vs 패밀리 단위</b></summary>
+
+<br/>
+
+지금은 재사용을 탐지하면 **계정 전체를 폐기**하는데, **로그인 단위(패밀리)만 폐기**하도록 바꾸려 합니다.
+
+- **실무에서도 패밀리 단위를 쓰나요?**
+- **관리자 계정처럼 민감한 계정**은 계정 전체를 폐기하고 알림까지 보내는 식으로 구분하나요?
+
+</details>
+
+<details>
+<summary><b>⑪ XSS 방어가 블랙리스트 방식입니다</b></summary>
+
+<br/>
+
+`sanitizeGenerated` 가 **`script`·`onclick` 만 제거**하는 블랙리스트 방식입니다.
+
+- **실무에서도 이렇게 XSS를 막나요?**
+- `onerror`·`onload`·`javascript:` URL 같은 **다른 벡터도 같이 막는 게 좋을까요?** 화이트리스트로 가야 하나요?
+
+</details>
+
+<details>
+<summary><b>⑫ 관리자와 사용자를 같은 도메인에 두고 쿠키를 갈랐습니다</b></summary>
+
+<br/>
+
+```
+사용자    /           쿠키 nv_user_rt     Path=/api/auth
+관리자    /admin/     쿠키 nv_admin_rt    Path=/api/admin/auth
+```
+
+쿠키가 하나였을 때 **관리자로 로그인하면 사용자 세션이 덮어써져서** 이름과 Path를 분리했습니다.
+
+- **실무에서 관리자 화면을 같은 도메인에 두나요,** 서브도메인이나 별도 서비스로 빼나요?
+- **분리하는 기준이 무엇인가요?**
+
+</details>
+
+<details>
+<summary><b>⑬ Access 는 메모리, Refresh 는 httpOnly 쿠키</b></summary>
+
+<br/>
+
+새로고침하면 Access 가 사라지고 Refresh 로 다시 받습니다.
+
+- **이 조합이 실무 표준에 가까운가요?**
+- **localStorage 를 안 쓴 건 맞는 선택이었나요?**
+
+</details>
+
+---
+
+## ⚙️ 비동기 / 작업 처리
+
+<details>
+<summary><b>⑭ 생성·수정을 단일 스레드 + 인메모리 작업 저장소로 처리합니다</b></summary>
+
+<br/>
+
+```java
+Executors.newSingleThreadExecutor()   // 생성용 1개, 수정용 1개
+Map<Long, GenerationJob> running      // 이벤트별 중복 방지
+Map<UUID, GenerationJob> byId         // 30분 보관 후 제거
+```
+
+프론트는 `jobId` 로 폴링합니다. 큐(SQS·Redis)를 안 쓴 이유는 **한 대짜리 구성이고 작업이 드물어서**입니다.
+
+- **어느 규모부터 큐로 넘어가야 하나요?**
+- 지금 구조는 **서버를 재시작하면 진행 중 작업이 사라지고, 인스턴스를 늘리면 중복 방지가 깨집니다.** 그 전환 비용을 미리 줄이는 설계가 있을까요?
+
+</details>
+
+<details>
+<summary><b>⑮ SSE 대신 폴링을 골랐습니다</b></summary>
+
+<br/>
+
+프론트를 처음엔 SSE 전제로 짰는데 백엔드가 폴링으로 가서 다시 맞췄습니다.
+
+- 생성 진행률 같은 걸 실무에서는 **SSE / WebSocket / 폴링 중 무엇으로 하시나요?**
+- **선택 기준이 궁금합니다.**
+
+</details>
 
 </details>
 
