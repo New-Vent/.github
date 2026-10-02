@@ -189,29 +189,12 @@ HTML을 배포하는 형식이 아닌, 수정해서 저장하면 보여주는 �
 <details>
 <summary><strong>[외부 현직자] 10.02 금요일 </strong></summary>
 
-## 🧩 도메인 분리 / 패키지 구조
-
-<details>
-<summary><b>① <code>event</code> 와 <code>generation</code> 이 양방향으로 의존합니다</b></summary>
-
-<br/>
-
-```
-event → generation    6개 파일   (EventService가 GenerationJobStore, DirectEditService가 VersionStore)
-generation → event   11개 파일   (GenerateCommand가 Event, 컨트롤러들이 EventRepository)
-```
-
-이벤트의 생명주기와 페이지 생성이 서로를 필요로 해서 이렇게 됐습니다.
-
-**실무에서는 이 순환을 어떻게 끊나요?** 인터페이스를 중간에 두는 방식, 도메인 이벤트로 느슨하게 하는 방식, 아니면 애초에 한 모듈로 합치는 방식 중 어느 쪽을 보시나요?
-
-</details>
 
 
 ## 🤖 LLM 설계
 
 <details>
-<summary><b>② 모델에게 디자인 권한을 얼마나 열어줄지</b></summary>
+<summary><b>1. 모델에게 디자인 권한을 얼마나 열어줄지</b></summary>
 
 <br/>
 
@@ -223,7 +206,18 @@ CSS를 쓰게 하면 디자인이 깨지고 검증도 할 수 없어서, **사�
 </details>
 
 <details>
-<summary><b>③ 모델 출력을 전혀 신뢰하지 않고 서버가 세 단계로 거릅니다</b></summary>
+<summary><b>2. <code>data-behavior</code> 로 동작을 선언하는 구조</b></summary>
+
+<br/>
+
+HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주입한 뒤, `runtime.js` 가 이벤트 위임과 API 요청을 담당합니다.
+
+**이 구조가 적절한지 궁금합니다.** 모델이 만든 마크업에 동작을 붙이는 다른 방법이 있을까요?
+
+</details>
+
+<details>
+<summary><b>3. 모델 출력을 전혀 신뢰하지 않고 서버가 세 단계로 거릅니다</b></summary>
 
 <br/>
 
@@ -241,19 +235,9 @@ script·onclick 제거          구조·값 보존            위치 기반 치�
 
 </details>
 
-<details>
-<summary><b>④ <code>data-behavior</code> 로 동작을 선언하는 구조</b></summary>
-
-<br/>
-
-HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주입한 뒤, `runtime.js` 가 이벤트 위임과 API 요청을 담당합니다.
-
-**이 구조가 적절한지 궁금합니다.** 모델이 만든 마크업에 동작을 붙이는 다른 방법이 있을까요?
-
-</details>
 
 <details>
-<summary><b>⑤ "되묻기"를 작업 상태로 모델링했습니다</b></summary>
+<summary><b>4. "되묻기"를 작업 상태로 모델링했습니다</b></summary>
 
 <br/>
 
@@ -264,21 +248,10 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 
 </details>
 
-<details>
-<summary><b>⑥ 문서·페이지 버전을 어디까지 남기나요</b></summary>
-
-<br/>
-
-생성·수정할 때마다 버전을 쌓고 있습니다.
-
-**실무에서는** 개수·기간 상한을 두는지, 저장 지점만 남기고 나머지를 정리하는지, 아니면 전부 보관하는지 궁금합니다.
-
-</details>
-
 ## 🔍 RAG / 검색
 
 <details>
-<summary><b>⑦ 임베딩 모델 5종을 비교해 1종으로 고정했습니다</b></summary>
+<summary><b>5. 임베딩 모델 5종을 비교해 1종으로 고정했습니다</b></summary>
 
 <br/>
 
@@ -291,7 +264,7 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 </details>
 
 <details>
-<summary><b>⑧ 유사도 하한 0.5, topK 3 으로 고정했습니다</b></summary>
+<summary><b>6. 유사도 하한 0.5, topK 3 으로 고정했습니다</b></summary>
 
 <br/>
 
@@ -303,7 +276,7 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 </details>
 
 <details>
-<summary><b>⑨ LLM 호출 로그에 <code>rag_used</code> · <code>chunk_ids</code> 를 남깁니다</b></summary>
+<summary><b>7. LLM 호출 로그에 <code>rag_used</code> · <code>chunk_ids</code> 를 남깁니다</b></summary>
 
 <br/>
 
@@ -316,31 +289,31 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 ## 🔐 보안 / 인증
 
 <details>
-<summary><b>⑩ Refresh 토큰 재사용 탐지 — 계정 전체 폐기 vs 패밀리 단위</b></summary>
+<summary><b>8. Refresh 토큰 재사용 탐지 — 계정 전체 폐기 vs 패밀리 단위</b></summary>
 
 <br/>
 
-지금은 재사용을 탐지하면 **계정 전체를 폐기**하는데, **로그인 단위(패밀리)만 폐기**하도록 바꾸려 합니다.
+지금은 Refresh Token 재사용을 탐지하면 **계정 전체를 폐기**하는데, **로그인 단위는 패밀리만 폐기**하도록 바꾸려 합니다.
 
-- **실무에서도 패밀리 단위를 쓰나요?**
-- **관리자 계정처럼 민감한 계정**은 계정 전체를 폐기하고 알림까지 보내는 식으로 구분하나요?
+- 실무에서도 패밀리 단위를 쓰나요?
+- 관리자 계정처럼 민감한 계정은 계정 전체를 폐기하고 알림까지 보내는 식으로 구분하나요?
 
 </details>
 
 <details>
-<summary><b>⑪ XSS 방어가 블랙리스트 방식입니다</b></summary>
+<summary><b>9. XSS 방어가 블랙리스트 방식입니다</b></summary>
 
 <br/>
 
-`sanitizeGenerated` 가 **`script`·`onclick` 만 제거**하는 블랙리스트 방식입니다.
+저희가 지금 `sanitizeGenerated` 가 `script`·`onclick` 만 제거하는 블랙리스트 방식입니다.
 
 - **실무에서도 이렇게 XSS를 막나요?**
-- `onerror`·`onload`·`javascript:` URL 같은 **다른 벡터도 같이 막는 게 좋을까요?** 화이트리스트로 가야 하나요?
+- 아니면 `onerror`·`onload`·`javascript:` URL 같은 **다른 벡터도 같이 막는 게 좋을까요?**
 
 </details>
 
 <details>
-<summary><b>⑫ 관리자와 사용자를 같은 도메인에 두고 쿠키를 갈랐습니다</b></summary>
+<summary><b>10. 관리자와 사용자를 같은 도메인에 두고 쿠키를 갈랐습니다</b></summary>
 
 <br/>
 
@@ -357,7 +330,7 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 </details>
 
 <details>
-<summary><b>⑬ Access 는 메모리, Refresh 는 httpOnly 쿠키</b></summary>
+<summary><b>11. Access 는 메모리, Refresh 는 httpOnly 쿠키</b></summary>
 
 <br/>
 
@@ -368,28 +341,8 @@ HTML에 `data-behavior` 로 동작을 선언하고, 서버가 `eventId` 를 주�
 
 </details>
 
-## ⚙️ 비동기 / 작업 처리
-
 <details>
-<summary><b>⑭ 생성·수정을 단일 스레드 + 인메모리 작업 저장소로 처리합니다</b></summary>
-
-<br/>
-
-```java
-Executors.newSingleThreadExecutor()   // 생성용 1개, 수정용 1개
-Map<Long, GenerationJob> running      // 이벤트별 중복 방지
-Map<UUID, GenerationJob> byId         // 30분 보관 후 제거
-```
-
-프론트는 `jobId` 로 폴링합니다. 큐(SQS·Redis)를 안 쓴 이유는 **한 대짜리 구성이고 작업이 드물어서**입니다.
-
-- **어느 규모부터 큐로 넘어가야 하나요?**
-- 지금 구조는 **서버를 재시작하면 진행 중 작업이 사라지고, 인스턴스를 늘리면 중복 방지가 깨집니다.** 그 전환 비용을 미리 줄이는 설계가 있을까요?
-
-</details>
-
-<details>
-<summary><b>⑮ SSE 대신 폴링을 골랐습니다</b></summary>
+<summary><b>12. SSE 대신 폴링을 골랐습니다</b></summary>
 
 <br/>
 
