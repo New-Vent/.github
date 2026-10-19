@@ -5,7 +5,7 @@
 > 어떤 이벤트를 하고 싶은지 말하면, 페이지가 나오고, 게시하면, 사용자가 참여합니다.
 
 <p align="center">
-  <img src="newvent-logo-banner.png" alt="NewVent 로고" width="360">
+  <img src="AI 이벤트 페이지 제작 흐름 안내.png" alt="NewVent 로고" width="100%">
 </p>
 
 ---
